@@ -1,0 +1,24 @@
+{
+  "name": "soportewebhub",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brahian04/soporteWebHub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/brahian04/soporteWebHub/issues"
+  },
+  "homepage": "https://github.com/brahian04/soporteWebHub#readme",
+  "description": "",
+  "devDependencies": {
+    "electron": "^33.2.1"
+  }
+}
