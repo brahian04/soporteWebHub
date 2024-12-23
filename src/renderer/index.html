@@ -1,18 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi App</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Página Principal</title>
+  <link rel="stylesheet" href="../styles/styles.css">
 </head>
 <body>
-  <h1>Bienvenido a Mi App</h1>
-  <form id="login-form">
-    <input type="text" id="username" placeholder="Usuario" required>
-    <input type="password" id="password" placeholder="Contraseña" required>
-    <button type="submit">Iniciar sesión</button>
-  </form>
-  <script src="renderer.js"></script>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <div class="fondolog"><img src="../logo.png" alt="Logo" class="logo"></div>
+        <span id="screen-indicator">Inicio</span>
+      </div>
+      <div class="navbar-right">
+        <span id="user-name">Usuario</span>
+        <div class="user-menu">
+          <img src="../assets/user-regular.svg" alt="Usuario" class="user-icon" id="userMenuToggle">
+          <div id="userDropdown" class="dropdown-menu">
+            <button id="editProfileBtn">Editar Datos</button>
+            <button id="logoutBtn">Cerrar Sesión</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <section>
+      <h2>Bienvenido a la aplicación</h2>
+      <p>Esta es la pantalla principal de la aplicación.</p>
+    </section>
+  </main>
+  <!-- Modal para Editar Datos -->
+  <div id="userModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h2>Editar Información de Usuario</h2>
+      <form id="userForm">
+        <label for="usernameBdProd">Nombre de usuario BD Prod:</label>
+        <input type="text" id="usernameBdProd" name="usernameBdProd" placeholder="Nombre de usuario BD Prod" required />
+        
+        <label for="passBdProd">Contraseña BD Prod:</label>
+        <input type="password" id="passBdProd" name="passBdProd" placeholder="Contraseña BD Prod" required />
+        
+        <label for="password">Nueva Contraseña:</label>
+        <input type="password" id="password" name="password" placeholder="Contraseña" />
+        
+        <button type="submit">Guardar Cambios</button>
+      </form>
+    </div>
+  </div>
+  <script src="render.js"></script>
 </body>
+
 </html>

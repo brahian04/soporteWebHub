@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantalla de Inicio de Sesión</title>
+    <link rel="stylesheet" href="../styles/login-styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Iniciar Sesión</h1>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">Correo Electrónico</label>
+                <input type="text" id="username" name="username" placeholder="Ingresa tu usuario" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+            </div>
+            <button type="submit" class="btn">Ingresar</button>
+        </form>
+        <div class="register-link">
+            <p>¿No tienes cuenta? <a href="#" id="openRegisterModal">Regístrate aquí</a></p>
+        </div>
+    </div>
+
+      <!-- Modal de Registro -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Registro de Usuario</h2>
+            <form id="registerForm">
+                <label for="regUsername">Nombre de Usuario:</label>
+                <input type="text" id="regUsername" name="regUsername" placeholder="Nombre de usuario" required />
+
+                <label for="regPassword">Contraseña:</label>
+                <input type="password" id="regPassword" name="regPassword" placeholder="Contraseña" required />
+
+                <label for="usernameBdProd">Nombre de usuario BD Prod:</label>
+                <input type="text" id="usernameBdProd" name="usernameBdProd" placeholder="Nombre de usuario BD Prod" required />
+
+                <label for="passBdProd">Contraseña BD Prod:</label>
+                <input type="password" id="passBdProd" name="passBdProd" placeholder="Contraseña BD Prod" required />
+                
+                <button type="submit">Registrar</button>
+            </form>
+        </div>
+    </div>
+    <script src="login.js"></script>
+</body>
+</html>

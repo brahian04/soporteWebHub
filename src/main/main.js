@@ -3,14 +3,33 @@ const path = require('path');
 
 let mainWindow;
 
-app.on('ready', () => {
+const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, '../renderer/renderer.js'),
+      preload: path.join(__dirname, '../renderer/render.js'),
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+  // Mostrar primero la pantalla de login
+  mainWindow.loadFile(path.join(__dirname, '../renderer/login.html'));
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+};
+
+app.on('ready', createWindow);
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
 });
