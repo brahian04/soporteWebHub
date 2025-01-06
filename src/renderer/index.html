@@ -25,12 +25,43 @@
       </div>
     </nav>
   </header>
-  <main>
-    <section>
-      <h2>Bienvenido a la aplicación</h2>
-      <p>Esta es la pantalla principal de la aplicación.</p>
-    </section>
-  </main>
+
+  <div class="app-container">
+    <!-- Barra lateral -->
+    <aside class="sidebar">
+      <ul class="tool-list">
+        <li class="tool-item active" data-tool="tool1">
+          <span class="tool-icon">🛠️</span>
+          <span class="tool-label">Herramienta 1</span>
+        </li>
+        <li class="tool-item" data-tool="tool2">
+          <span class="tool-icon">📊</span>
+          <span class="tool-label">Herramienta 2</span>
+        </li>
+        <li class="tool-item" data-tool="tool3">
+          <span class="tool-icon">✏️</span>
+          <span class="tool-label">Herramienta 3</span>
+        </li>
+        <li class="tool-item" data-tool="tool4">
+          <span class="tool-icon">📂</span>
+          <span class="tool-label">Herramienta 4</span>
+        </li>
+        <li class="tool-item" data-tool="tool5">
+          <span class="tool-icon">⚙️</span>
+          <span class="tool-label">Herramienta 5</span>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Área de trabajo -->
+    <main class="workspace">
+      <div id="tool-content">
+        <h2>Bienvenido a la aplicación</h2>
+        <p>Esta es la pantalla principal de la aplicación.</p>
+      </div>
+    </main>
+  </div>
+
   <!-- Modal para Editar Datos -->
   <div id="userModal" class="modal">
     <div class="modal-content">

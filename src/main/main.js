@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const server = require('../server/server');
 
 let mainWindow;
 
@@ -8,7 +9,7 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, '../renderer/render.js'),
+      // preload: path.join(__dirname, '../renderer/login.js'),
     },
   });
 
