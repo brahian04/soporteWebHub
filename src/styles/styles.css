@@ -124,18 +124,25 @@ main p {
 /* Tool list-worksapce Styles */
 .app-container {
   width: 100%;
-  display: flex;
+  /* display: flex; */
   max-width: 100%;
   height: calc(100vh - 60px); /* Ajusta según la altura de tu navbar */
 }
 
 .sidebar {
+  position: fixed;
   width: 80px;
+  left: -80px;
   background-color: #007bff;
-  display: flex;
+  /* display: flex; */
   flex-direction: column;
   align-items: center;
+  transition: left 0.3s ease;
   padding-top: 10px;
+}
+
+.sidebar.open {
+  left: 0;
 }
 
 .tool-list {
@@ -170,11 +177,13 @@ main p {
 }
 
 .workspace {
+  margin-left: 0;
   flex: 1;
-  width: 80%;
+  /* width: 100%; */
   max-width: 100%;
   padding: 20px;
   background-color: #ecf0f1;
+  transition: all 0.3s ease;
 }
 
 #tool-content {
@@ -254,6 +263,17 @@ main p {
   transition: background-color 0.3s;
 }
 
+/* Ícono del menú lateral */
+.menu-icon {
+  font-size: 24px;
+  cursor: pointer;
+  /* position: fixed; */
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  padding-right: 10px;
+}
+
 .modal-content button:hover {
   background-color: #0056b3;
 }
@@ -284,7 +304,7 @@ main p {
   border-radius: 5px;
 }
 
-.form {
+#form {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;

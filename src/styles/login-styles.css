@@ -53,6 +53,12 @@ h1 {
     outline: none;
 }
 
+#error-message{
+    display: none; 
+    color: red;
+    margin-bottom: 5px;
+}
+
 /* Button styles */
 .btn {
     background-color: #007bff;

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerModal = document.getElementById("registerModal");
     const openRegisterModal = document.getElementById("openRegisterModal");
     const closeBtn = registerModal.querySelector(".close-btn");
+    const errorDiv = document.getElementById('error-message');
   
     if (loginForm) {
       loginForm.addEventListener('submit', (event) => {
@@ -18,7 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
           // Cambiar a la ventana principal
           window.location.href = 'index.html';
         } else {
-          alert('Credenciales inválidas');
+          errorDiv.textContent = 'Credenciales inválidas';
+          errorDiv.style.display = 'block';
         }
       });
     }

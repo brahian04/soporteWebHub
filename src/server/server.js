@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 // Configuración de la base de datos
 const dbConfig = {
   user: "OPS$BDIAZLLA",
-  password: "Fv6apSz%YWQV",
+  password: "Fv7apSz%YWQV",
   connectString: "10.142.64.101:1526/ALEAP11G"
 };
 

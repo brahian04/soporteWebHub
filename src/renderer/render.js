@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (editProfileBtn && userModal && closeModalBtn) {
     editProfileBtn.addEventListener('click', () => {
       userModal.style.display = 'block';
-      userDropdown.style.display = 'none'; // Cierra el menú desplegable
+      userDropdown.classList.remove('visible'); // Cierra el menú desplegable
     });
 
     closeModalBtn.addEventListener('click', () => {
@@ -55,6 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  //barra lateral
+  const menuIcon = document.getElementById('menu-icon');
+  const sidebar = document.getElementById('sidebar');
+    // Abrir barra lateral
+    menuIcon.addEventListener('click', () => {
+      document.body.classList.toggle('sidebar-open');
+      if(sidebar.classList.contains('open')){
+        sidebar.classList.remove('open');
+      }else{
+        sidebar.classList.add('open');
+      }
+    });
+
+    window.addEventListener('click', (event) => {
+      if (!sidebar.contains(event.target) && event.target !== menuIcon) {
+          sidebar.classList.remove('open');
+      }
+    });
+  /////////////////////////////////////////////////////
+
   // Cambiar el contenido del área de trabajo
   const toolItems = document.querySelectorAll(".tool-item");
   const toolContent = document.getElementById("tool-content");
@@ -74,8 +94,28 @@ document.addEventListener('DOMContentLoaded', () => {
           </table>
         </div>
         <div class="actions"> <button class="button" id="clear-table" onclick="clearTable()">Limpiar</button> <button class="button cancel-button" id="cancel-policy" onclick="cancelPolicy()">CANCELAR POLIZA</button> <button class="button emit-button" id= "emit-policy" onclick="emitPolicy()">EMITIR POLIZA</button> <button class="button receipt-button" id="emit-receipt" onclick="emitComplement()">EMITIR COMPLEMENTO</button></div> 
-      </main> `},
-    tool2: { title: "Herramienta 2", content: "Contenido inicial para Herramienta 2." },
+      </main> `
+    },
+    tool2: { title: "Reenvio de documentos", content: `
+      <main class="mainTool2">
+        <h2 class="main-title">Cargar Archivo Excel</h2>
+        <form id="upload-form" class="upload-form">
+          <label for="excel-file" class="file-label">Selecciona un archivo Excel:</label>
+          <input type="file" id="excel-file" class="file-input" accept=".xlsx, .xls">
+          <button type="button" id="upload-button" class="button upload-button" onclick="handleFileUpload()">Cargar Archivo</button>
+        </form>
+        <div id="upload-status" class="upload-status"></div>
+        <div class="table-container" id="excel-table-container">
+          <table id="excel-result-table">
+            <thead>
+              <tr id="excel-table-header"></tr>
+            </thead>
+            <tbody id="excel-table-body"></tbody>
+          </table>
+        </div>
+      </main>
+    `
+    },
     tool3: { title: "Herramienta 3", content: "Contenido inicial para Herramienta 3." },
     tool4: { title: "Herramienta 4", content: "Contenido inicial para Herramienta 4." },
     tool5: { title: "Herramienta 5", content: "Contenido inicial para Herramienta 5." },
@@ -307,3 +347,68 @@ function clearTable() {
       }
     }
   };
+
+// reenvio de documento
+// Función para mostrar los datos del archivo Excel
+  function displayExcelData(data) {
+    const tableHeader = document.getElementById("excel-table-header");
+    const tableBody = document.getElementById("excel-table-body");
+
+    // Limpiar tabla
+    tableHeader.innerHTML = "";
+    tableBody.innerHTML = "";
+
+    if (data.length === 0) {
+      document.getElementById("upload-status").innerText = "El archivo está vacío.";
+      return;
+    }
+
+    // Crear encabezados
+    const headers = Object.keys(data[0]);
+    headers.forEach((header) => {
+      const th = document.createElement("th");
+      th.textContent = header;
+      tableHeader.appendChild(th);
+    });
+
+    // Crear filas
+    data.forEach((row) => {
+      const tr = document.createElement("tr");
+      headers.forEach((header) => {
+        const td = document.createElement("td");
+        td.textContent = row[header] || "";
+        tr.appendChild(td);
+      });
+      tableBody.appendChild(tr);
+    });
+
+    document.getElementById("upload-status").innerText = "Archivo cargado exitosamente.";
+  }
+
+  // Función para manejar la carga del archivo Excel
+  function handleFileUpload() {
+    const fileInput = document.getElementById("excel-file");
+    const file = fileInput.files[0];
+    if (!file) {
+      document.getElementById("upload-status").innerText = "Por favor, selecciona un archivo.";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+
+      // Leer la primera hoja
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+
+      // Convertir los datos de la hoja a JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Mostrar los datos en la tabla
+      displayExcelData(jsonData);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
