@@ -58,6 +58,68 @@ app.post("/buscar", async (req, res) => {
   }
 });
 
+app.get("/monitor", async (req, res) =>{
+  const connection = await oracledb.getConnection(dbConfig);
+  const activeSessionsQuery = `
+    SELECT count(*) as total
+    FROM v$session
+    WHERE username IS NOT NULL AND status = 'ACTIVE'
+  `;
+  const inactiveSessionsQuery = `
+    SELECT count(*) as total
+    FROM v$session
+    WHERE username IS NOT NULL AND status = 'INACTIVE'
+  `;
+  const activeDetailsQuery = `
+    SELECT * FROM (
+      SELECT username, machine, status, count(*) as total
+      FROM v$session
+      WHERE username IS NOT NULL AND status = 'ACTIVE'
+      GROUP BY username, machine, status
+      ORDER BY total DESC
+    ) WHERE ROWNUM <= 10
+  `;
+  const inactiveDetailsQuery = `
+    SELECT * FROM (
+      SELECT username, machine, status, count(*) as total
+      FROM v$session
+      WHERE username IS NOT NULL AND status = 'INACTIVE'
+      GROUP BY username, machine, status
+      ORDER BY total DESC
+    ) WHERE ROWNUM <= 10
+  `;
+  try {
+    if(connection){
+      console.log('conexion iniciada');
+    }
+
+    const activeSessions = await connection.execute(activeSessionsQuery);
+    const activeCount = activeSessions.rows.length > 0 ? activeSessions.rows[0][0] : 0;
+    const inactiveSessions = await connection.execute(inactiveSessionsQuery);
+    const inactiveCount = inactiveSessions.rows.length > 0 ? inactiveSessions.rows[0][0] : 0;
+    const activeDetails = await connection.execute(activeDetailsQuery);
+    const inactiveDetails = await connection.execute(inactiveDetailsQuery);
+
+    console.log("activeSessions: ", activeCount);
+    console.log("inactiveSessions: ", inactiveCount);
+    console.log("activeDetails: ", activeDetails);
+    console.log("inactiveDetails: ", inactiveDetails);
+
+    res.json({
+      active: activeCount,
+      inactive: inactiveCount,
+      activeDetails: activeDetails.rows,
+      inactiveDetails: inactiveDetails.rows,
+    });
+  }catch (error) {
+    console.error('Error validando sesiones:', error);
+    res.status(500).send('Error validando sesiones:', error);
+  }finally{
+    await connection.close();
+    console.log('conexion terminada');
+  }
+})
+
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
 });

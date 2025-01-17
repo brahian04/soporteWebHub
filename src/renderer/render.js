@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="actions"> <button class="button" id="clear-table" onclick="clearTable()">Limpiar</button> <button class="button cancel-button" id="cancel-policy" onclick="cancelPolicy()">CANCELAR POLIZA</button> <button class="button emit-button" id= "emit-policy" onclick="emitPolicy()">EMITIR POLIZA</button> <button class="button receipt-button" id="emit-receipt" onclick="emitComplement()">EMITIR COMPLEMENTO</button></div> 
       </main> `
     },
-    tool2: { title: "Reenvio de documentos", content: `
+    tool2: { title: "Reenvio de Documentos", content: `
       <main class="mainTool2">
         <h2 class="main-title">Cargar Archivo Excel</h2>
         <form id="upload-form" class="upload-form">
@@ -116,7 +116,35 @@ document.addEventListener('DOMContentLoaded', () => {
       </main>
     `
     },
-    tool3: { title: "Herramienta 3", content: "Contenido inicial para Herramienta 3." },
+    tool3: { title: "Monitor de Sesiones", content: `
+      <h1>Sesiones Activas</h1>
+      <!-- Botones de acción -->
+      <div class="button-container">
+        <button id="validate-sessions" onclick="monitor()">Validar Sesiones</button>
+      </div>
+
+      <!-- Contenedor de estado -->
+      <div id="status"></div>
+
+      <!-- Contenedor de totales -->
+      <div id="totals-container">
+        <h3 class="hidden">Totales de Sesiones</h3>
+        <div id="totals-table"></div>
+      </div>
+
+      <!-- Contenedor para las tablas -->
+      <div id="results-container">
+        <div id="active-results">
+          <h3 class="hidden">Sesiones Activas</h3>
+          <div id="active-table"></div>
+        </div>
+        <div id="inactive-results">
+          <h3 class="hidden">Sesiones Inactivas</h3>
+          <div id="inactive-table"></div>
+        </div>
+      </div>
+      `
+    },
     tool4: { title: "Herramienta 4", content: "Contenido inicial para Herramienta 4." },
     tool5: { title: "Herramienta 5", content: "Contenido inicial para Herramienta 5." },
   };
@@ -349,66 +377,184 @@ function clearTable() {
   };
 
 // reenvio de documento
-// Función para mostrar los datos del archivo Excel
-  function displayExcelData(data) {
-    const tableHeader = document.getElementById("excel-table-header");
-    const tableBody = document.getElementById("excel-table-body");
+// function displayExcelData(data) {
+//   const tableHeader = document.getElementById("excel-table-header");
+//   const tableBody = document.getElementById("excel-table-body");
 
-    // Limpiar tabla
-    tableHeader.innerHTML = "";
-    tableBody.innerHTML = "";
+//   // Limpiar tabla
+//   tableHeader.innerHTML = "";
+//   tableBody.innerHTML = "";
 
-    if (data.length === 0) {
-      document.getElementById("upload-status").innerText = "El archivo está vacío.";
-      return;
-    }
+//   if (data.length === 0) {
+//     document.getElementById("upload-status").innerText = "El archivo está vacío.";
+//     return;
+//   }
+
+//   // Crear encabezados
+//   const headers = Object.keys(data[0]);
+//   headers.forEach((header) => {
+//     const th = document.createElement("th");
+//     th.textContent = header;
+//     tableHeader.appendChild(th);
+//   });
+
+//   // Crear filas
+//   data.forEach((row) => {
+//     const tr = document.createElement("tr");
+//     headers.forEach((header) => {
+//       const td = document.createElement("td");
+//       td.textContent = row[header] || "";
+//       tr.appendChild(td);
+//     });
+//     tableBody.appendChild(tr);
+//   });
+
+//   document.getElementById("upload-status").innerText = "Archivo cargado exitosamente.";
+// }
+  // function handleFileUpload() {
+  //   const fileInput = document.getElementById("excel-file");
+  //   const file = fileInput.files[0];
+  //   if (!file) {
+  //     document.getElementById("upload-status").innerText = "Por favor, selecciona un archivo.";
+  //     return;
+  //   }
+
+  //   const reader = new FileReader();
+  //   reader.onload = (event) => {
+  //     const data = new Uint8Array(event.target.result);
+  //     const workbook = XLSX.read(data, { type: "array" });
+
+  //     // Leer la primera hoja
+  //     const firstSheetName = workbook.SheetNames[0];
+  //     const worksheet = workbook.Sheets[firstSheetName];
+
+  //     // Convertir los datos de la hoja a JSON
+  //     const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+  //     // Mostrar los datos en la tabla
+  //     displayExcelData(jsonData);
+  //   };
+  //   reader.readAsArrayBuffer(file);
+  // }
+
+// MONITOREO DE SESIONES
+  async function monitor() {
+    const statusDiv = document.getElementById('status');
+    const totalsTableDiv = document.getElementById('totals-table');
+    const activeTableDiv = document.getElementById('active-table');
+    const inactiveTableDiv = document.getElementById('inactive-table');
+    const totalsContainer = document.getElementById('totals-container');
+    const activeResultsDiv = document.getElementById('active-results');
+    const inactiveResultsDiv = document.getElementById('inactive-results');
+
+    statusDiv.innerText = 'Validando sesiones...';
+    totalsTableDiv.innerHTML = '';
+    activeTableDiv.innerHTML = '';
+    inactiveTableDiv.innerHTML = '';
+
+    // Ocultar encabezados inicialmente
+    totalsContainer.querySelector('h3').classList.add('hidden');
+    activeResultsDiv.querySelector('h3').classList.add('hidden');
+    inactiveResultsDiv.querySelector('h3').classList.add('hidden');
+
+    try {
+      // Asegúrate de esperar la respuesta de fetch con await
+      const response = await fetch("http://localhost:3200/monitor");
+      console.log("Respuesta recibida:", response.status);
+      // Verifica si la respuesta fue exitosa
+      if (!response.ok) {
+        statusDiv.innerText = "Error al conectar con el servidor.";
+        console.error(`Error: ${response.statusText}`);
+        return;
+      }
+    
+      // Parsea la respuesta a JSON
+      const result = await response.json();
+    
+      console.log(result);
+      statusDiv.innerText = "Sesiones validadas correctamente.";
+    
+      // Crear tabla de totales
+      const totalsData = [
+        ["Activas", result.active],
+        ["Inactivas", result.inactive],
+      ];
+      const totalsTable = createTable(totalsData, ["Estado", "Total"]);
+      totalsTableDiv.appendChild(totalsTable);
+      totalsContainer.querySelector("h3").classList.remove("hidden"); // Mostrar encabezado
+    
+      // Crear tabla para sesiones activas si hay datos
+      if (result.activeDetails.length > 0) {
+        const activeTable = createTable(result.activeDetails, ["USERNAME", "MACHINE", "STATUS", "TOTAL"]);
+        activeTableDiv.appendChild(activeTable);
+    
+        // Calcular suma de la columna "TOTAL"
+        const activeTotalSum = calculateColumnSum(result.activeDetails, 3); // Columna 3 es "TOTAL"
+        const activeSumDiv = document.createElement("div");
+        activeSumDiv.classList.add("total-sum");
+        activeSumDiv.innerText = `Suma Total: ${activeTotalSum}`;
+        activeTableDiv.appendChild(activeSumDiv);
+    
+        activeResultsDiv.querySelector("h3").classList.remove("hidden"); // Mostrar encabezado
+      } else {
+        activeTableDiv.innerHTML = "<p>No hay detalles para sesiones activas.</p>";
+      }
+    
+      // Crear tabla para sesiones inactivas si hay datos
+      if (result.inactiveDetails.length > 0) {
+        const inactiveTable = createTable(result.inactiveDetails, ["USERNAME", "MACHINE", "STATUS", "TOTAL"]);
+        inactiveTableDiv.appendChild(inactiveTable);
+    
+        // Calcular suma de la columna "TOTAL"
+        const inactiveTotalSum = calculateColumnSum(result.inactiveDetails, 3); // Columna 3 es "TOTAL"
+        const inactiveSumDiv = document.createElement("div");
+        inactiveSumDiv.classList.add("total-sum");
+        inactiveSumDiv.innerText = `Suma Total: ${inactiveTotalSum}`;
+        inactiveTableDiv.appendChild(inactiveSumDiv);
+    
+        inactiveResultsDiv.querySelector("h3").classList.remove("hidden"); // Mostrar encabezado
+      } else {
+        inactiveTableDiv.innerHTML = "<p>No hay detalles para sesiones inactivas.</p>";
+      }
+    } catch (error) {
+      // Manejo de errores si fetch falla
+      statusDiv.innerText = "Error al conectar con el servidor.";
+      console.error("Error:", error);
+    }    
+  };
+
+  // Crear una tabla dinámica
+  function createTable(data, headers) {
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
 
     // Crear encabezados
-    const headers = Object.keys(data[0]);
-    headers.forEach((header) => {
-      const th = document.createElement("th");
+    const headerRow = document.createElement('tr');
+    headers.forEach(header => {
+      const th = document.createElement('th');
       th.textContent = header;
-      tableHeader.appendChild(th);
+      headerRow.appendChild(th);
     });
+    thead.appendChild(headerRow);
 
     // Crear filas
-    data.forEach((row) => {
-      const tr = document.createElement("tr");
-      headers.forEach((header) => {
-        const td = document.createElement("td");
-        td.textContent = row[header] || "";
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      row.forEach(cell => {
+        const td = document.createElement('td');
+        td.textContent = cell;
         tr.appendChild(td);
       });
-      tableBody.appendChild(tr);
+      tbody.appendChild(tr);
     });
 
-    document.getElementById("upload-status").innerText = "Archivo cargado exitosamente.";
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    return table;
   }
 
-  // Función para manejar la carga del archivo Excel
-  function handleFileUpload() {
-    const fileInput = document.getElementById("excel-file");
-    const file = fileInput.files[0];
-    if (!file) {
-      document.getElementById("upload-status").innerText = "Por favor, selecciona un archivo.";
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const data = new Uint8Array(event.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-
-      // Leer la primera hoja
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-
-      // Convertir los datos de la hoja a JSON
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-      // Mostrar los datos en la tabla
-      displayExcelData(jsonData);
-    };
-    reader.readAsArrayBuffer(file);
+  // Función para calcular la suma de una columna específica
+  function calculateColumnSum(data, columnIndex) {
+    return data.reduce((sum, row) => sum + parseInt(row[columnIndex] || 0, 10), 0);
   }
-
