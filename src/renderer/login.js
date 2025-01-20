@@ -8,19 +8,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const registerForm = document.getElementById('registerForm');
 
   // Leer credenciales guardadas al cargar la página
-  const config = await window.api.leerConfiguracion();
+  let config = await window.api.leerConfiguracion();
   if (config) {
       document.getElementById('username').value = config.usuario || '';
-      console.log("usuario: ", config.usuario);
-      // document.getElementById('password').value = config.contraseña || '';
-      console.log("contraseña: ", config.contraseña);
+      // console.log("usuario: ", config.usuario);
+      // console.log("contraseña: ", config.contraseña);
   }
 
   // Manejo del formulario de inicio de sesión
   if (loginForm) {
       loginForm.addEventListener('submit', async (event) => {
           event.preventDefault();
-
+          config = await window.api.leerConfiguracion();
           const username = document.getElementById('username').value;
           const password = document.getElementById('password').value;
 

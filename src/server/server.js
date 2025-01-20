@@ -1,6 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const oracledb = require("oracledb");
+const path = require('path');
+
+const config = require(path.join(__dirname, '../utils/config.json'));
 
 const app = express();
 const port = 3200;
@@ -11,8 +14,8 @@ app.use(bodyParser.json());
 
 // Configuración de la base de datos
 const dbConfig = {
-  user: "OPS$BDIAZLLA",
-  password: "Fv7apSz%YWQV",
+  user: config.usuarioBD,
+  password: config.contraseñaBD,
   connectString: "10.142.64.101:1526/ALEAP11G"
 };
 
@@ -100,10 +103,10 @@ app.get("/monitor", async (req, res) =>{
     const activeDetails = await connection.execute(activeDetailsQuery);
     const inactiveDetails = await connection.execute(inactiveDetailsQuery);
 
-    console.log("activeSessions: ", activeCount);
-    console.log("inactiveSessions: ", inactiveCount);
-    console.log("activeDetails: ", activeDetails);
-    console.log("inactiveDetails: ", inactiveDetails);
+    // console.log("activeSessions: ", activeCount);
+    // console.log("inactiveSessions: ", inactiveCount);
+    // console.log("activeDetails: ", activeDetails);
+    // console.log("inactiveDetails: ", inactiveDetails);
 
     res.json({
       active: activeCount,
