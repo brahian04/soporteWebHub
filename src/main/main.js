@@ -1,6 +1,7 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const server = require('../server/server');
+const { leerConfiguracion, guardarConfiguracion } = require('../utils/configManager');
 
 let mainWindow;
 
@@ -9,8 +10,8 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      // preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: false,
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
     },
   });
 
@@ -21,6 +22,25 @@ const createWindow = () => {
     mainWindow = null;
   });
 };
+
+// Eventos IPC para manejar configuración
+ipcMain.handle('leer-configuracion', async () => {
+  try {
+    return leerConfiguracion();
+  } catch (error) {
+    console.error('Error al leer la configuración:', error);
+    return null;
+  }
+});
+
+ipcMain.handle('guardar-configuracion', async (event, nuevaConfig) => {
+  try {
+    return guardarConfiguracion(nuevaConfig);
+  } catch (error) {
+    console.error('Error al guardar la configuración:', error);
+    return false;
+  }
+});
 
 app.on('ready', createWindow);
 

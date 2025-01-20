@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
     `
     },
     tool3: { title: "Monitor de Sesiones", content: `
-      <h1>Sesiones Activas</h1>
       <!-- Botones de acción -->
       <div class="button-container">
         <button id="validate-sessions" onclick="monitor()">Validar Sesiones</button>
