@@ -271,24 +271,24 @@ function clearTable() {
 
     console.log('UUIDs a cancelar:', uuids);
 
-    // try {
-    //   const response = await fetch('http://facturaservices.internal.apps.oly2x0pz.eastus.aroapp.io/FacturaServices/api/factura/comprobante/cancelacion/uuid', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(uuids),
-    //   });
+    try {
+      const response = await fetch('http://facturaservices.internal.apps.oly2x0pz.eastus.aroapp.io/FacturaServices/api/factura/comprobante/cancelacion/uuid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(uuids),
+      });
 
-    //   const result = await response.json();
+      const result = await response.json();
 
-    //   if (response.ok) {
-    //     document.getElementById('status').innerText = `Cancelación completada: ${JSON.stringify(result)}`;
-    //   } else {
-    //     document.getElementById('status').innerText = `Error: ${JSON.stringify(result)}`;
-    //   }
-    // } catch (error) {
-    //   document.getElementById('status').innerText = 'Error al cancelar pólizas.';
-    //   console.error(error);
-    // }
+      if (response.ok) {
+        document.getElementById('status').innerText = `Cancelación completada: ${JSON.stringify(result)}`;
+      } else {
+        document.getElementById('status').innerText = `Error: ${JSON.stringify(result)}`;
+      }
+    } catch (error) {
+      document.getElementById('status').innerText = 'Error al cancelar pólizas.';
+      console.error(error);
+    }
   };
 
 // Emitir póliza
