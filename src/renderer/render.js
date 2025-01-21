@@ -430,66 +430,80 @@ function clearTable() {
     }
   };
 
-// reenvio de documento
-// function displayExcelData(data) {
-//   const tableHeader = document.getElementById("excel-table-header");
-//   const tableBody = document.getElementById("excel-table-body");
+  function displayExcelData(data) {
+    const tableHeader = document.getElementById("excel-table-header");
+    const tableBody = document.getElementById("excel-table-body");
+  
+    // Limpiar tabla
+    tableHeader.innerHTML = "";
+    tableBody.innerHTML = "";
+  
+    if (data.length === 0) {
+      document.getElementById("upload-status").innerText = "El archivo no contiene filas de datos.";
+      return;
+    }
+  
+    // Crear encabezados
+    const headers = Object.keys(data[0]);
+    headers.forEach((header) => {
+      const th = document.createElement("th");
+      th.textContent = header;
+      tableHeader.appendChild(th);
+    });
+  
+    // Crear filas
+    data.forEach((row) => {
+      const tr = document.createElement("tr");
+      headers.forEach((header) => {
+        const td = document.createElement("td");
+        td.textContent = row[header] || "";
+        tr.appendChild(td);
+      });
+      tableBody.appendChild(tr);
+    });
+  
+    document.getElementById("upload-status").innerText = "Archivo cargado exitosamente.";
+  }
+  
+  function handleFileUpload() {
+    const fileInput = document.getElementById("excel-file");
+    const file = fileInput.files[0];
+  
+    if (!file || !file.name.match(/\.(xlsx|xls)$/)) {
+      document.getElementById("upload-status").innerText = "Por favor, selecciona un archivo Excel válido (.xls o .xlsx).";
+      return;
+    }
+  
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+  
+        // Leer la primera hoja
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+  
+        // Validar si la hoja contiene datos
+        if (!worksheet || Object.keys(worksheet).length === 0) {
+          document.getElementById("upload-status").innerText = "El archivo no contiene datos válidos.";
+          return;
+        }
+  
+        // Convertir los datos de la hoja a JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  
+        // Mostrar los datos en la tabla
+        displayExcelData(jsonData);
+      } catch (error) {
+        document.getElementById("upload-status").innerText = "Hubo un error procesando el archivo.";
+        console.error("Error al procesar el archivo:", error);
 
-//   // Limpiar tabla
-//   tableHeader.innerHTML = "";
-//   tableBody.innerHTML = "";
-
-//   if (data.length === 0) {
-//     document.getElementById("upload-status").innerText = "El archivo está vacío.";
-//     return;
-//   }
-
-//   // Crear encabezados
-//   const headers = Object.keys(data[0]);
-//   headers.forEach((header) => {
-//     const th = document.createElement("th");
-//     th.textContent = header;
-//     tableHeader.appendChild(th);
-//   });
-
-//   // Crear filas
-//   data.forEach((row) => {
-//     const tr = document.createElement("tr");
-//     headers.forEach((header) => {
-//       const td = document.createElement("td");
-//       td.textContent = row[header] || "";
-//       tr.appendChild(td);
-//     });
-//     tableBody.appendChild(tr);
-//   });
-
-//   document.getElementById("upload-status").innerText = "Archivo cargado exitosamente.";
-// }
-  // function handleFileUpload() {
-  //   const fileInput = document.getElementById("excel-file");
-  //   const file = fileInput.files[0];
-  //   if (!file) {
-  //     document.getElementById("upload-status").innerText = "Por favor, selecciona un archivo.";
-  //     return;
-  //   }
-
-  //   const reader = new FileReader();
-  //   reader.onload = (event) => {
-  //     const data = new Uint8Array(event.target.result);
-  //     const workbook = XLSX.read(data, { type: "array" });
-
-  //     // Leer la primera hoja
-  //     const firstSheetName = workbook.SheetNames[0];
-  //     const worksheet = workbook.Sheets[firstSheetName];
-
-  //     // Convertir los datos de la hoja a JSON
-  //     const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-  //     // Mostrar los datos en la tabla
-  //     displayExcelData(jsonData);
-  //   };
-  //   reader.readAsArrayBuffer(file);
-  // }
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+  
 
 // MONITOREO DE SESIONES
   async function monitor() {
