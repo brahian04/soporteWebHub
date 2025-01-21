@@ -2,6 +2,22 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const oracledb = require("oracledb");
 const path = require('path');
+const fs = require('fs');
+
+const configPath = path.join(__dirname, '../utils/config.json');
+
+// Verificar si el archivo existe
+if (!fs.existsSync(configPath)) {
+    // Crear el archivo con valores predeterminados si no existe
+    const defaultConfig = {
+      usuario: '',
+      contraseña: '',
+      usuarioBD: '',
+      contraseñaBD: ''
+    };
+    fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2), 'utf8');
+    console.log('Archivo config.json creado con valores predeterminados.');
+}
 
 const config = require(path.join(__dirname, '../utils/config.json'));
 
