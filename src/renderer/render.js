@@ -1,8 +1,24 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Mostrar nombre de usuario desde localStorage
   const userNameElement = document.getElementById('user-name');
+  const userForm = document.getElementById('userForm');
   const userName = localStorage.getItem('userName');
+  const alertModal = document.getElementById('alertModal');
+  const alertMessage = document.getElementById('alertMessage');
+  const alertOkButton = document.getElementById('alertOkButton');
   if (userName) userNameElement.textContent = userName;
+
+  // Función para mostrar la alerta personalizada
+  function mostrarAlerta(mensaje, callback) {
+    alertMessage.textContent = mensaje;
+    alertModal.style.display = 'block';
+
+    // Cerrar el modal al hacer clic en OK
+    alertOkButton.onclick = () => {
+        alertModal.style.display = 'none';
+        if (callback) callback(); // Llama a una función adicional si se pasa
+    };
+  }
 
   // Toggle del menú de usuario
   const userMenuToggle = document.getElementById('userMenuToggle');
@@ -44,6 +60,45 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  userForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const nuevaContraseñaApp = document.getElementById('passwordApp').value;
+    const nuevoUsuarioBdProd = document.getElementById('usernameBdProd').value;
+    const nuevaContraseñaBdProd = document.getElementById('passBdProd').value;
+
+    if(nuevaContraseñaApp !== '' || nuevoUsuarioBdProd !== '' || nuevaContraseñaBdProd !== ''){
+      let datosActualizados = {};
+      if (nuevaContraseñaApp !== '') {
+          // console.log(nuevaContraseñaApp);
+          datosActualizados.contraseña = nuevaContraseñaApp;
+      }
+      if (nuevoUsuarioBdProd !== '') {
+          // console.log(nuevoUsuarioBdProd);
+          datosActualizados.usuarioBD = nuevoUsuarioBdProd;
+      }
+      if (nuevaContraseñaBdProd !== '') {
+          // console.log(nuevaContraseñaBdProd);
+          datosActualizados.contraseñaBD = nuevaContraseñaBdProd;
+      }
+      // Actualizar los datos en config.json
+      // console.log("datosActualizados: ", datosActualizados);
+      const resultado = await window.api.guardarConfiguracion(datosActualizados);
+
+      if (resultado) {
+        mostrarAlerta('Datos guardados correctamente.', () => {
+          userForm.reset(); // Resetea el formulario después de guardar
+          userModal.style.display = 'none'; // Cierra el modal después de guardar
+        });
+      } else {
+          mostrarAlerta('Error al actualizar los datos: ' + resultado.message);
+      }
+    } else {
+        mostrarAlerta('No hay datos para actualizar.');
+        return;
+    }
+  });
 
   // Cerrar sesión
   const logoutBtn = document.getElementById('logoutBtn');

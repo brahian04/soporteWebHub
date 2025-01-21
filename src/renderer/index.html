@@ -61,21 +61,27 @@
       </div>
     </main>
   </div>
-
+  <div id="alertModal" class="modalAlert" style="display: none;">
+    <div class="modal-cont" style="width: 300px; text-align: center;">
+      <p id="alertMessage"></p>
+      <button id="alertOkButton">OK</button>
+    </div>
+  </div>
   <!-- Modal para Editar Datos -->
   <div id="userModal" class="modal">
     <div class="modal-content">
       <span class="close-btn">&times;</span>
       <h2>Editar Información de Usuario</h2>
       <form id="userForm">
+
+        <label for="passwordApp">Nueva Contraseña App:</label>
+        <input type="password" id="passwordApp" name="password" placeholder="Contraseña" />
+        <hr>
         <label for="usernameBdProd">Nombre de usuario BD Prod:</label>
-        <input type="text" id="usernameBdProd" name="usernameBdProd" placeholder="Nombre de usuario BD Prod" required />
+        <input type="text" id="usernameBdProd" name="usernameBdProd" placeholder="Nombre de usuario BD Prod"/>
         
         <label for="passBdProd">Contraseña BD Prod:</label>
-        <input type="password" id="passBdProd" name="passBdProd" placeholder="Contraseña BD Prod" required />
-        
-        <label for="password">Nueva Contraseña:</label>
-        <input type="password" id="password" name="password" placeholder="Contraseña" />
+        <input type="password" id="passBdProd" name="passBdProd" placeholder="Contraseña BD Prod"/>
         
         <button type="submit">Guardar Cambios</button>
       </form>
