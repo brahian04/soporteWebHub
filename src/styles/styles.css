@@ -121,6 +121,14 @@ main p {
   font-size: 1rem;
 }
 
+button[disabled] {
+  background-color: #cccccc; /* Color de fondo gris */
+  color: #666666; /* Color de texto gris */
+  cursor: not-allowed; /* Cambiar el cursor a no permitido */
+  pointer-events: none;
+  opacity: 0.6; /* Reducir la opacidad */
+}
+
 /* Tool list-worksapce Styles */
 .app-container {
   width: 100%;
@@ -304,6 +312,10 @@ main p {
   border-radius: 5px;
 }
 
+#status{
+  margin-top: 5px;
+}
+
 #form {
   display: flex;
   gap: 10px;
@@ -430,3 +442,37 @@ hr {
   border-top: 1px solid #ccc;
   margin: 10px 0;
 }
+
+/* Tool 2 Styles */
+.mainTool2 button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.mainTool2 button:hover{
+  background-color: #0056b3;
+}
+
+.upload-status{
+  color: #ce2c3d;
+}
+/* ///////////////////////////////////////// */
+
+/* Tool 3 Styles */
+.mainTool3 button{
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.mainTool3 button:hover{
+  background-color: #0056b3;
+}
+/* ///////////////////////////////////////// */

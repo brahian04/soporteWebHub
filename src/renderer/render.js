@@ -135,11 +135,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const toolContent = document.getElementById("tool-content");
 
   const tools = {
+    tool0: { title: "Bienvenido a la aplicación", content: ` 
+      <main class="mainTool1"> 
+        <p>Esta es la pantalla principal de la aplicación.</p>
+      </main> `
+    },
     tool1: { title: "Reexpedir Facturas", content: ` 
       <main class="mainTool1"> 
         <h2 class="main-title">Datos factura</h2>
         <div class="form" id="factura-form"> <input type="number" min="0" id="cdunico" placeholder="cdunico" class="input"> <input type="number" min="1" placeholder="ramo" id="ramo" class="input"> <input type="number" min="1" placeholder="poliza" id="poliza" class="input"> <button id="search-button" class="button search-button" onclick="buscar()">BUSCAR</button> </div>
-        <div id="status"></div>
+        <div id="status" class="upload-status"></div>
         <div class="table-container" id="table-container">
           <table id="result-table">
             <thead>
@@ -148,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <tbody id="table-body"></tbody>
           </table>
         </div>
-        <div class="actions"> <button class="button" id="clear-table" onclick="clearTable()">Limpiar</button> <button class="button cancel-button" id="cancel-policy" onclick="cancelPolicy()">CANCELAR POLIZA</button> <button class="button emit-button" id= "emit-policy" onclick="emitPolicy()">EMITIR POLIZA</button> <button class="button receipt-button" id="emit-receipt" onclick="emitComplement()">EMITIR COMPLEMENTO</button></div> 
+        <div class="actions"> <button class="button" id="clear-table" onclick="clearTable()">Limpiar</button> <button class="button cancel-button" id="cancel-policy" onclick="cancelPolicy()">CANCELAR</button> <button class="button emit-button" id= "emit-policy" onclick="emitPolicy()">EMITIR</button> <button class="button receipt-button" id="emit-receipt" onclick="emitComplement()">EMITIR COMPLEMENTO</button></div> 
       </main> `
     },
     tool2: { title: "Reenvio de Documentos", content: `
@@ -168,35 +173,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             <tbody id="excel-table-body"></tbody>
           </table>
         </div>
+        <div class="actions"> <button class="button" id="clear-table" onclick="limpiarTool2()">Limpiar</button> <button id="reenvDoc" onclick="" disabled>Reenviar</button></div>
       </main>
     `
     },
     tool3: { title: "Monitor de Sesiones", content: `
-      <!-- Botones de acción -->
-      <div class="button-container">
-        <button id="validate-sessions" onclick="monitor()">Validar Sesiones</button>
-      </div>
-
-      <!-- Contenedor de estado -->
-      <div id="status"></div>
-
-      <!-- Contenedor de totales -->
-      <div id="totals-container">
-        <h3 class="hidden">Totales de Sesiones</h3>
-        <div id="totals-table"></div>
-      </div>
-
-      <!-- Contenedor para las tablas -->
-      <div id="results-container">
-        <div id="active-results">
-          <h3 class="hidden">Sesiones Activas</h3>
-          <div id="active-table"></div>
+      <main class="mainTool3"> 
+        <!-- Botones de acción -->
+        <div class="button-container">
+          <button class="button" id="validate-sessions" onclick="monitor()">Validar Sesiones</button>
         </div>
-        <div id="inactive-results">
-          <h3 class="hidden">Sesiones Inactivas</h3>
-          <div id="inactive-table"></div>
+
+        <!-- Contenedor de estado -->
+        <div id="status" class="upload-status"></div>
+
+        <!-- Contenedor de totales -->
+        <div id="totals-container">
+          <h3 class="hidden">Totales de Sesiones</h3>
+          <div id="totals-table"></div>
         </div>
-      </div>
+
+        <!-- Contenedor para las tablas -->
+        <div id="results-container">
+          <div id="active-results">
+            <h3 class="hidden">Sesiones Activas</h3>
+            <div id="active-table"></div>
+          </div>
+          <div id="inactive-results">
+            <h3 class="hidden">Sesiones Inactivas</h3>
+            <div id="inactive-table"></div>
+          </div>
+        </div>
+      </main> 
       `
     },
     tool4: { title: "Herramienta 4", content: "Contenido inicial para Herramienta 4." },
@@ -217,21 +225,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 });
 
-function buscar() {
+async function buscar() {
   const cdunico = document.getElementById("cdunico").value; 
   const ramo = document.getElementById("ramo").value; 
-  const poliza = document.getElementById("poliza").value; 
+  const poliza = document.getElementById("poliza").value;
+  const textoStatus= document.getElementById('status');
 
   if(cdunico !== "" && ramo !== "" && poliza !== ""){
-    document.getElementById('status').innerText = 'Consultando...';
-    fetch("http://localhost:3200/buscar", {
-    method: "POST", 
-    headers: { "Content-Type": "application/json", },
-    body: JSON.stringify({ cdunico, ramo, poliza }), })
-    .then(response => response.json())
-    .then(data => {
+    textoStatus.innerText = 'Consultando...';
+    try{
+      const response= await fetch("http://localhost:3200/buscar", {
+        method: "POST", 
+        headers: { "Content-Type": "application/json", },
+        body: JSON.stringify({ cdunico, ramo, poliza }),
+      })
+      if (!response.ok) {
+        const errorText = await response.text();
+        textoStatus.innerText = `Error: ${errorText}`;
+        // console.error(`Error: ${response.statusText}`);
+        return;
+      }
+      const data = await response.json();
+
       if (!data || Object.keys(data).length === 0 || (Array.isArray(data) && data.length === 0)) {
-        document.getElementById('status').innerText = 'No se encontraron registros, validar si no es una factura excluida.';
+        textoStatus.innerText = 'No se encontraron registros, validar si no es una factura excluida.';
         document.getElementById('table-header').innerHTML = '';
         document.getElementById('table-body').innerHTML = '';
         // console.log(data);
@@ -240,13 +257,14 @@ function buscar() {
         document.getElementById('status').innerText = 'Consulta completada';
         // console.log(data);
       }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      document.getElementById('status').innerText = 'Ocurrió un error al buscar registros';
-    });
+
+    }catch(error){
+      // console.error('Error:', error);
+      console.log('Error:', error);
+      textoStatus.innerText = 'Ocurrió un error al buscar registros';
+    }
   }else{
-    document.getElementById('status').innerText = 'Favor de completar los datos de factura.';
+    textoStatus.innerText = 'Favor de completar los datos de factura.';
   }
 }
 
@@ -305,6 +323,7 @@ function populateTable(data) {
 function clearTable() {
   document.getElementById('table-header').innerHTML = '';
   document.getElementById('table-body').innerHTML = '';
+  document.getElementById('status').innerText = '';
   const inputs = document.querySelectorAll('.input');
   inputs.forEach(input => {
     input.value = '';
@@ -447,7 +466,7 @@ function clearTable() {
     const headers = Object.keys(data[0]);
     headers.forEach((header) => {
       const th = document.createElement("th");
-      th.textContent = header;
+      th.textContent = "Contenido del Archivo";
       tableHeader.appendChild(th);
     });
   
@@ -463,6 +482,13 @@ function clearTable() {
     });
   
     document.getElementById("upload-status").innerText = "Archivo cargado exitosamente.";
+  }
+
+  function limpiarTool2(){
+    document.getElementById("excel-table-header").innerHTML = "";
+    document.getElementById("excel-table-body").innerHTML = "";
+    document.getElementById("upload-status").innerText = "";
+    document.getElementById("excel-file").value="";
   }
   
   function handleFileUpload() {
@@ -526,13 +552,12 @@ function clearTable() {
     inactiveResultsDiv.querySelector('h3').classList.add('hidden');
 
     try {
-      // Asegúrate de esperar la respuesta de fetch con await
       const response = await fetch("http://localhost:3200/monitor");
-      console.log("Respuesta recibida:", response.status);
-      // Verifica si la respuesta fue exitosa
+      // console.log("Respuesta recibida:", response.status);
       if (!response.ok) {
-        statusDiv.innerText = "Error al conectar con el servidor.";
-        console.error(`Error: ${response.statusText}`);
+        const errorText = await response.text();
+        statusDiv.innerText = `Error: ${errorText}`;
+        // console.error(`Error: ${response.statusText}`);
         return;
       }
     

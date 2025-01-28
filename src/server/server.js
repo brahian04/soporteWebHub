@@ -37,8 +37,9 @@ const dbConfig = {
 
 app.post("/buscar", async (req, res) => {
   const { cdunico, ramo, poliza } = req.body;
-  const connection = await oracledb.getConnection(dbConfig);
+  let connection;
   try {
+    connection = await oracledb.getConnection(dbConfig);
     if(connection){
       console.log('conexion iniciada');
     }
@@ -55,30 +56,47 @@ app.post("/buscar", async (req, res) => {
         AND C.ID_COMPROBANTE = B.ID_COMPROBANTE
         AND D.ID_COMPROBANTE = C.ID_COMPROBANTE
         ORDER BY A.CDMOVTO DESC`,
-      { cdunico, ramo, poliza }
+      {cdunico, ramo, poliza}
     );
-    // const result = await connection.execute(
-    //     `SELECT * FROM TUSUARIO WHERE CDUSUARI = 'MXJRUEDACA'`
-    // );
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("No se encontraron resultados.");
+    }
     const formattedRows = result.rows.map(row =>
       result.metaData.reduce((acc, meta, index) => {
         acc[meta.name] = row[index];
         return acc;
       }, {})
     );
-    res.json(formattedRows);
-    // res.json(result);
+    res.status(200).json(formattedRows);
+
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error al realizar la consulta");
+    console.error("Error en el endpoint /buscar:", err);
+    // Manejo de errores específicos de credenciales o conexión
+    if (err.errorNum === 1017) {
+      // ORA-01017: Invalid username/password
+      res.status(401).send("Credenciales de base de datos inválidas.");
+    } else if (err.errorNum === 28000) {
+      // ORA-28000: The account is locked
+      res.status(403).send("La cuenta de base de datos está bloqueada.");
+    } else {
+      // Otros errores
+      res.status(500).send("Error al realizar la consulta.");
+    }
   }finally{
-    await connection.close();
-    console.log('conexion terminada');
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("Conexion a la base de datos cerrada");
+      } catch (closeErr) {
+        console.error("Error al cerrar la conexion:", closeErr);
+      }
+    }
   }
 });
 
 app.get("/monitor", async (req, res) =>{
-  const connection = await oracledb.getConnection(dbConfig);
+  let connection;
   const activeSessionsQuery = `
     SELECT count(*) as total
     FROM v$session
@@ -108,6 +126,7 @@ app.get("/monitor", async (req, res) =>{
     ) WHERE ROWNUM <= 10
   `;
   try {
+    connection = await oracledb.getConnection(dbConfig);
     if(connection){
       console.log('conexion iniciada');
     }
@@ -130,12 +149,28 @@ app.get("/monitor", async (req, res) =>{
       activeDetails: activeDetails.rows,
       inactiveDetails: inactiveDetails.rows,
     });
-  }catch (error) {
-    console.error('Error validando sesiones:', error);
-    res.status(500).send('Error validando sesiones:', error);
+  }catch (err) {
+    console.error("Error en el endpoint /monitor:", err);
+    // Manejo de errores específicos de credenciales o conexión
+    if (err.errorNum === 1017) {
+      // ORA-01017: Invalid username/password
+      res.status(401).send("Credenciales de base de datos inválidas.");
+    } else if (err.errorNum === 28000) {
+      // ORA-28000: The account is locked
+      res.status(403).send("La cuenta de base de datos está bloqueada.");
+    } else {
+      // Otros errores
+      res.status(500).send("Error al realizar la consulta.");
+    }
   }finally{
-    await connection.close();
-    console.log('conexion terminada');
+    if (connection) {
+      try {
+        await connection.close();
+        console.log("Conexion a la base de datos cerrada");
+      } catch (closeErr) {
+        console.error("Error al cerrar la conexion:", closeErr);
+      }
+    }
   }
 })
 
